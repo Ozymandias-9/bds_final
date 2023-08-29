@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  username String @unique
+  name String
+  lastname String
+  email String @unique
+  phone String @unique
+  password String
+  cards Card[]
+  tickets Ticket[]
+  reviews Review[]
+  bookmarks Bookmark[]
+}
+
+model Admin {
+  id Int @id @default(autoincrement())
+  username String @unique
+  name String
+  lastname String
+  email String @unique
+  phone String @unique
+  password String
+}
+
+model Card {
+  id Int @id @default(autoincrement())
+  cardNumber String
+  fullname String
+  cvc String
+  expirationTime String
+  userId Int
+  owner User @relation(fields: [userId], references: [id])
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String @unique
+  movies Movie[]
+}
+
+model Movie {
+  id Int @id @default(autoincrement())
+  categoryId Int
+  category Category @relation(fields: [categoryId], references: [id])
+  photo String
+  title String
+  premiereDate Int
+  classification String
+  duration String
+  buyPrice Float
+  rentPrice Float
+  directorId Int
+  director Director @relation(fields: [directorId], references: [id])
+  actors Actor[]
+  synopsis String @db.LongText
+  tickets Ticket[]
+  reviews Review[]
+  bookmarks Bookmark[]
+}
+
+model Director {
+  id Int @id @default(autoincrement())
+  fullname String
+  photo String
+  birthdate DateTime
+  birthplace String
+  biography String
+  movies Movie[]
+}
+
+model Actor {
+  id Int @id @default(autoincrement())
+  fullname String
+  photo String
+  birthdate DateTime
+  birthplace String
+  biography String
+  movies Movie[]
+}
+
+model Ticket {
+  id Int @id @default(autoincrement())
+  type String
+  movieId Int?
+  movie Movie? @relation(fields: [movieId], references: [id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  expirationDate DateTime
+  earning Earning?
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+  grade Int
+  movieId Int
+  movie Movie @relation(fields: [movieId], references: [id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+}
+
+model AdminLog {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  subject String
+  change String
+  subjectId Int
+}
+
+model Earning {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  quantity Float
+  ticketId Int @unique
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+}
+
+model Bookmark {
+  id Int @id @default(autoincrement())
+  movieId Int?
+  movie Movie? @relation(fields: [movieId], references: [id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+}
